@@ -9,13 +9,17 @@ class Buku extends Model
 {
     use HasFactory;
 
-    protected $table = 'buku';
+    protected $table = 'bukus';
 
     protected $fillable = [
+        'kode_buku',
         'judul',
+        'kategori',
+        'bahasa',
         'pengarang',
         'penerbit',
         'tahun_terbit',
+        'isbn',
         'harga',
         'stok',
         'deskripsi',
@@ -29,6 +33,12 @@ class Buku extends Model
     ];
 
     // ACCESSORS
+
+    public function getHargaFormatAttribute(): string
+    {
+        return 'Rp ' . number_format($this->harga ?? 0, 0, ',', '.');
+    }
+
     /**
      * @return string
      */
@@ -54,40 +64,12 @@ class Buku extends Model
     public function getTahunLabelAttribute(): string
     {
         $tahun = $this->tahun_terbit ?? 0;
-
-        return $tahun >= 2024 ? 'Buku Baru' : 'Buku Lama';
-    }
-
-    // SCOPES
-    /**
-     * Scope: Filter buku dengan stok < 5 (stok menipis)
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeStokMenipis($query)
-    {
-        return $query->where('stok', '<', 5);
-    }
-
-    /**
-     * Scope: Filter buku berdasarkan rentang harga.
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  int  $min
-     * @param  int  $max
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeHargaRange($query, int $min, int $max)
-    {
-        return $query->whereBetween('harga', [$min, $max]);
-    }
-
-    /**
-     * Scope: Filter buku terbaru (tahun_terbit >= 2024).
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeTerbaru($query)
-    {
-        return $query->where('tahun_terbit', '>=', 2024);
+        if ($tahun < 2000) {
+            return '<span class="badge bg-secondary">Klasik</span>';
+        } elseif ($tahun <= 2010) {
+            return '<span class="badge bg-primary">Modern</span>';
+        } else {
+            return '<span class="badge bg-success">Kontemporer</span>';
+        }
     }
 }
