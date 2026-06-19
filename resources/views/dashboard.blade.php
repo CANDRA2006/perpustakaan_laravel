@@ -86,6 +86,53 @@
     </div>
 </div>
 
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 {{ $totalTerlambat > 0 ? 'border-start border-danger border-4' : '' }}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="text-muted mb-1">Buku Terlambat</p>
+                        <h2 class="fw-bold mb-0 {{ $totalTerlambat > 0 ? 'text-danger' : '' }}">{{ $totalTerlambat }}</h2>
+                    </div>
+                    <div class="bg-danger bg-opacity-10 text-danger rounded-3 p-3">
+                        <i class="bi bi-exclamation-triangle fs-4"></i>
+                    </div>
+                </div>
+                <a href="{{ route('transaksi.index', ['status' => 'Dipinjam']) }}" class="small text-decoration-none">
+                    Lihat semua transaksi dipinjam <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h6 class="mb-0"><i class="bi bi-people-fill text-danger me-2"></i>Anggota dengan Buku Terlambat</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead class="table-light">
+                        <tr><th>Anggota</th><th>Buku</th><th>Jatuh Tempo</th><th>Terlambat</th></tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($transaksiTerlambat->take(5) as $t)
+                            <tr>
+                                <td>{{ $t->anggota->nama }}</td>
+                                <td>{{ $t->buku->judul }}</td>
+                                <td>{{ $t->tanggal_kembali_rencana->format('d M Y') }}</td>
+                                <td><span class="badge bg-danger">{{ $t->hari_terlambat }} hari</span></td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="4" class="text-center text-muted py-3">Tidak ada buku terlambat</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4">
     <div class="col-lg-6">
         <div class="card shadow-sm border-0 h-100">

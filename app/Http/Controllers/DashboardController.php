@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Anggota;
 use App\Models\Buku;
+use App\Models\Transaksi;
 
 class DashboardController extends Controller
 {
@@ -20,6 +21,9 @@ class DashboardController extends Controller
         $bukuTerbaru = Buku::latest()->take(5)->get();
         $anggotaTerbaru = Anggota::latest()->take(5)->get();
 
+        $transaksiTerlambat = Transaksi::with(['buku', 'anggota'])->terlambat()->latest()->get();
+        $totalTerlambat = $transaksiTerlambat->count();
+
         return view('dashboard', compact(
             'totalBuku',
             'bukuTersedia',
@@ -28,7 +32,9 @@ class DashboardController extends Controller
             'anggotaAktif',
             'anggotaNonaktif',
             'bukuTerbaru',
-            'anggotaTerbaru'
+            'anggotaTerbaru',
+            'transaksiTerlambat',
+            'totalTerlambat'
         ));
     }
 }

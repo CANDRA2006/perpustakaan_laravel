@@ -1,4 +1,4 @@
-# TUGAS PEMROGRAMAN WEB 2 - PERTEMUAN 13
+# TUGAS PEMROGRAMAN WEB 2 - PERTEMUAN 14
 
 ## Identitas Mahasiswa
 
@@ -10,11 +10,3 @@
 
 ---
 
-## Create Anggota
-![CREATE ANGGOTA](img/Create_Anggota.png)
-
-## Export Anggota
-![EXPORT KE EXCEL](img/Export_Excel.png)
-
-## Advanced Search
-![Advanced Search](img/Advanced_Search.png)

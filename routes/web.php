@@ -8,6 +8,7 @@ use App\Http\Controllers\PerpustakaanController;
 use App\Http\Controllers\KategoriController;
 use App\Models\Anggota;
 use App\Models\Buku;
+use App\Http\Controllers\TransaksiController;
 use Illuminate\Support\Facades\DB;
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -47,3 +48,10 @@ Route::get('/anggota/export', [AnggotaController::class, 'export'])->name('anggo
 
 // Resource route untuk Anggota (akan dibuat nanti)
 Route::resource('anggota', AnggotaController::class);
+
+// Resource route untuk Transaksi
+Route::get('/transaksi/laporan', [TransaksiController::class, 'laporan'])->name('transaksi.laporan');
+Route::get('/transaksi/laporan/pdf', [TransaksiController::class, 'laporanPdf'])->name('transaksi.laporan.pdf');
+Route::post('/transaksi/{transaksi}/kembalikan', [TransaksiController::class, 'kembalikan'])->name('transaksi.kembalikan');
+Route::resource('transaksi', TransaksiController::class)->except(['edit', 'update', 'destroy']);
+
