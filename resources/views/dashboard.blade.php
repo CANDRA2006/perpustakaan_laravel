@@ -77,7 +77,7 @@
                     <a href="{{ route('home') }}" class="btn btn-outline-secondary text-start">
                         <i class="bi bi-house me-2"></i> Home
                     </a>
-                    <a href="#" class="btn btn-outline-info text-start">
+                    <a href="{{ route('transaksi.create') }}" class="btn btn-outline-info text-start">
                         <i class="bi bi-arrow-left-right me-2"></i> Transaksi
                     </a>
                 </div>

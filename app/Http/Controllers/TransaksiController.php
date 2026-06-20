@@ -27,12 +27,16 @@ class TransaksiController extends Controller
         return view('transaksi.index', compact('transaksis'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $bukus = Buku::tersedia()->orderBy('judul')->get();
         $anggotas = Anggota::aktif()->orderBy('nama')->get();
 
-        return view('transaksi.create', compact('bukus', 'anggotas'));
+        // Mendukung prefill buku terpilih, misal dari tombol "Pinjam Buku"
+        // di halaman detail buku: route('transaksi.create', ['buku_id' => $buku->id])
+        $selectedBukuId = $request->integer('buku_id') ?: null;
+
+        return view('transaksi.create', compact('bukus', 'anggotas', 'selectedBukuId'));
     }
 
     public function store(Request $request)
@@ -54,7 +58,7 @@ class TransaksiController extends Controller
 
         DB::transaction(function () use ($validated, $buku) {
             $tanggalPinjam = Carbon::parse($validated['tanggal_pinjam']);
-            $lamaPinjam = $validated['lama_pinjam'] ?? self::LAMA_PINJAM_HARI;
+            $lamaPinjam = (int) ($validated['lama_pinjam'] ?? self::LAMA_PINJAM_HARI);
 
             Transaksi::create([
                 'kode_transaksi' => $this->generateKodeTransaksi(),
@@ -185,3 +189,4 @@ class TransaksiController extends Controller
         return 'TRX-' . $tanggal . '-' . str_pad((string) $jumlahHariIni, 3, '0', STR_PAD_LEFT);
     }
 }
+
