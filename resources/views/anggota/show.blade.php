@@ -1,7 +1,7 @@
 @extends('layouts.app')
- 
+
 @section('title', $anggota->nama)
- 
+
 @section('content')
 <div class="row">
     <div class="col-12 mb-3">
@@ -14,7 +14,7 @@
         </nav>
     </div>
 </div>
- 
+
 <div class="row">
     <div class="col-md-8">
         <div class="card">
@@ -42,7 +42,7 @@
                         </span>
                     @endif
                 </div>
-                
+
                 <table class="table table-borderless">
                     <tr>
                         <td width="200" class="fw-bold">
@@ -93,22 +93,99 @@
                         <td>: {{ $anggota->tanggal_daftar->format('d F Y') }} ({{ $anggota->lama_anggota }} hari)</td>
                     </tr>
                 </table>
-                
+
                 <hr>
                 <div class="row text-muted small">
                     <div class="col-md-6">
-                        <i class="bi bi-clock"></i> 
+                        <i class="bi bi-clock"></i>
                         Ditambahkan: {{ $anggota->created_at->format('d M Y H:i') }}
                     </div>
                     <div class="col-md-6 text-end">
-                        <i class="bi bi-clock-history"></i> 
+                        <i class="bi bi-clock-history"></i>
                         Terakhir Update: {{ $anggota->updated_at->format('d M Y H:i') }}
                     </div>
                 </div>
             </div>
         </div>
+
+        {{-- Riwayat Peminjaman --}}
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Riwayat Peminjaman</h5>
+                <form method="GET" class="d-flex gap-2">
+                    <select name="status_riwayat" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="Semua" {{ $statusRiwayat == 'Semua' ? 'selected' : '' }}>Semua Status</option>
+                        <option value="Dipinjam" {{ $statusRiwayat == 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
+                        <option value="Dikembalikan" {{ $statusRiwayat == 'Dikembalikan' ? 'selected' : '' }}>Dikembalikan</option>
+                    </select>
+                </form>
+            </div>
+
+            {{-- Statistik ringkas --}}
+            <div class="row g-0 border-bottom text-center">
+                <div class="col-4 py-3 border-end">
+                    <div class="text-muted small">Total Pinjam</div>
+                    <div class="h4 mb-0">{{ $totalPinjam }}</div>
+                </div>
+                <div class="col-4 py-3 border-end">
+                    <div class="text-muted small">Sedang Dipinjam</div>
+                    <div class="h4 mb-0 text-primary">{{ $sedangDipinjam }}</div>
+                </div>
+                <div class="col-4 py-3">
+                    <div class="text-muted small">Total Denda</div>
+                    <div class="h5 mb-0 {{ $totalDenda > 0 ? 'text-danger' : 'text-success' }}">
+                        Rp {{ number_format($totalDenda, 0, ',', '.') }}
+                    </div>
+                </div>
+            </div>
+
+            {{-- Timeline peminjaman --}}
+            <div class="card-body">
+                @forelse ($riwayatPeminjaman as $riwayat)
+                    <div class="d-flex mb-3 {{ !$loop->last ? 'pb-3 border-bottom' : '' }}">
+                        <div class="me-3 text-center" style="width: 40px;">
+                            <i class="bi bi-{{ $riwayat->status === 'Dikembalikan' ? 'check-circle-fill text-success' : 'hourglass-split text-primary' }}" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ $riwayat->buku->judul ?? 'Buku tidak ditemukan' }}</strong>
+                                @if ($riwayat->status === 'Dikembalikan')
+                                    <span class="badge bg-success">Dikembalikan</span>
+                                @elseif ($riwayat->is_terlambat)
+                                    <span class="badge bg-danger">Terlambat {{ $riwayat->hari_terlambat }} hari</span>
+                                @else
+                                    <span class="badge bg-primary">Dipinjam</span>
+                                @endif
+                            </div>
+                            <div class="text-muted small">
+                                <code>{{ $riwayat->kode_transaksi }}</code> &middot;
+                                Pinjam: {{ $riwayat->tanggal_pinjam->format('d M Y') }} &rarr;
+                                Rencana Kembali: {{ $riwayat->tanggal_kembali_rencana->format('d M Y') }}
+                                @if ($riwayat->tanggal_kembali_aktual)
+                                    &middot; Dikembalikan: {{ $riwayat->tanggal_kembali_aktual->format('d M Y') }}
+                                @endif
+                            </div>
+                            @if ($riwayat->denda > 0)
+                                <div class="small text-danger">
+                                    <i class="bi bi-cash-coin"></i> Denda: Rp {{ number_format($riwayat->denda, 0, ',', '.') }}
+                                </div>
+                            @endif
+                        </div>
+                        <div>
+                            <a href="{{ route('transaksi.show', $riwayat->id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-muted text-center mb-0">
+                        <i class="bi bi-info-circle"></i> Anggota ini belum memiliki riwayat peminjaman.
+                    </p>
+                @endforelse
+            </div>
+        </div>
     </div>
-    
+
     <div class="col-md-4">
         <div class="card mb-3">
             <div class="card-header bg-secondary text-white">

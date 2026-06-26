@@ -17,4 +17,12 @@ class Kategori extends Model
         'icon',
         'warna',
     ];
+
+    /**
+     * Relasi hasMany ke Buku (kebalikan dari Buku::kategoriModel()).
+     */
+    public function bukus()
+    {
+        return $this->hasMany(Buku::class, 'kategori_id');
+    }
 }

@@ -74,8 +74,8 @@
                     <a href="{{ route('anggota.index') }}" class="btn btn-outline-success text-start">
                         <i class="bi bi-people me-2"></i> Menu Anggota
                     </a>
-                    <a href="{{ route('home') }}" class="btn btn-outline-secondary text-start">
-                        <i class="bi bi-house me-2"></i> Home
+                    <a href="{{ route('search') }}" class="btn btn-outline-secondary text-start">
+                        <i class="bi bi-search me-2"></i> Pencarian Global
                     </a>
                     <a href="{{ route('transaksi.create') }}" class="btn btn-outline-info text-start">
                         <i class="bi bi-arrow-left-right me-2"></i> Transaksi
@@ -128,6 +128,53 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ===================== CHARTS ===================== --}}
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0"><i class="bi bi-graph-up text-primary me-2"></i>Trend Peminjaman (6 Bulan Terakhir)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartTrend" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0"><i class="bi bi-pie-chart-fill text-success me-2"></i>Distribusi Kategori Buku</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartKategori" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0"><i class="bi bi-bar-chart-fill text-warning me-2"></i>Top 10 Buku Terpopuler</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartTopBuku" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0"><i class="bi bi-circle-half text-info me-2"></i>Status Transaksi</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartStatus" height="220"></canvas>
             </div>
         </div>
     </div>
@@ -216,4 +263,85 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const palette = ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1', '#20c997', '#fd7e14', '#0dcaf0', '#6610f2', '#d63384'];
+
+    // Chart 1: Line - Trend Peminjaman
+    new Chart(document.getElementById('chartTrend'), {
+        type: 'line',
+        data: {
+            labels: @json($trendLabels),
+            datasets: [{
+                label: 'Jumlah Peminjaman',
+                data: @json($trendData),
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13,110,253,0.15)',
+                tension: 0.35,
+                fill: true,
+                pointRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+    });
+
+    // Chart 2: Pie - Distribusi Kategori
+    new Chart(document.getElementById('chartKategori'), {
+        type: 'pie',
+        data: {
+            labels: @json($distribusiKategori->pluck('kategori')),
+            datasets: [{
+                data: @json($distribusiKategori->pluck('total')),
+                backgroundColor: palette,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    // Chart 3: Bar - Top 10 Buku Terpopuler
+    new Chart(document.getElementById('chartTopBuku'), {
+        type: 'bar',
+        data: {
+            labels: @json($topBuku->pluck('judul')),
+            datasets: [{
+                label: 'Jumlah Dipinjam',
+                data: @json($topBuku->pluck('total_pinjam')),
+                backgroundColor: '#ffc107',
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y',
+            plugins: { legend: { display: false } },
+            scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+    });
+
+    // Chart 4: Donut - Status Transaksi
+    new Chart(document.getElementById('chartStatus'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Dipinjam', 'Dikembalikan'],
+            datasets: [{
+                data: [{{ $statusDipinjam }}, {{ $statusDikembalikan }}],
+                backgroundColor: ['#0d6efd', '#198754'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+});
+</script>
+@endpush
 @endsection

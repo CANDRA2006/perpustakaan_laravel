@@ -1,57 +1,78 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\BukuController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PerpustakaanController;
+use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\KategoriController;
-use App\Models\Anggota;
-use App\Models\Buku;
 use App\Http\Controllers\TransaksiController;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
 
-// Home route
 Route::get('/', function () {
     return view('home');
 })->name('home');
 
-// Specific routes for Buku (must be before the resource route)
-Route::get('/buku/search', [BukuController::class, 'search'])->name('buku.search');
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+*/
 
-// Custom route untuk filter kategori
-Route::get('/buku/kategori/{kategori}', [BukuController::class, 'filterKategori'])
-    ->name('buku.kategori');
-
-// Route untuk bulk delete
-Route::post('/buku/bulk-delete', [BukuController::class, 'bulkDelete'])
-    ->name('buku.bulk-delete');
-
-// Guard route jika URL bulk-delete diakses via GET
-Route::get('/buku/bulk-delete', function () {
-    return redirect()->route('buku.index')
-        ->with('error', 'Metode request tidak valid untuk bulk delete.');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.attempt');
 });
 
-// Route untuk export CSV
-Route::get('/buku/export', [BukuController::class, 'export'])
-    ->name('buku.export');
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
 
-// Resource route untuk Buku
-Route::resource('buku', BukuController::class);
+/*
+|--------------------------------------------------------------------------
+| Protected Routes (Require Authentication)
+|--------------------------------------------------------------------------
+*/
 
-// Specific routes for Anggota
-Route::get('/anggota/search', [AnggotaController::class, 'search'])->name('anggota.search');
-Route::get('/anggota/export', [AnggotaController::class, 'export'])->name('anggota.export');
+Route::middleware('auth')->group(function () {
 
-// Resource route untuk Anggota (akan dibuat nanti)
-Route::resource('anggota', AnggotaController::class);
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-// Resource route untuk Transaksi
-Route::get('/transaksi/laporan', [TransaksiController::class, 'laporan'])->name('transaksi.laporan');
-Route::get('/transaksi/laporan/pdf', [TransaksiController::class, 'laporanPdf'])->name('transaksi.laporan.pdf');
-Route::post('/transaksi/{transaksi}/kembalikan', [TransaksiController::class, 'kembalikan'])->name('transaksi.kembalikan');
-Route::resource('transaksi', TransaksiController::class)->except(['edit', 'update', 'destroy']);
+    // Global Search (lintas modul: Buku, Anggota, Transaksi)
+    Route::get('/search', [GlobalSearchController::class, 'index'])->name('search');
 
+    // Buku - rute spesifik harus didefinisikan sebelum resource route
+    Route::get('/buku/search', [BukuController::class, 'search'])->name('buku.search');
+    Route::get('/buku/kategori/{kategori}', [BukuController::class, 'filterKategori'])
+        ->name('buku.kategori');
+    Route::post('/buku/bulk-delete', [BukuController::class, 'bulkDelete'])
+        ->name('buku.bulk-delete');
+    Route::get('/buku/bulk-delete', function () {
+        return redirect()->route('buku.index')
+            ->with('error', 'Metode request tidak valid untuk bulk delete.');
+    });
+    Route::get('/buku/export', [BukuController::class, 'export'])->name('buku.export');
+    Route::resource('buku', BukuController::class);
+
+    // Anggota
+    Route::get('/anggota/search', [AnggotaController::class, 'search'])->name('anggota.search');
+    Route::get('/anggota/export', [AnggotaController::class, 'export'])->name('anggota.export');
+    Route::resource('anggota', AnggotaController::class);
+
+    // Kategori (CRUD penuh, terhubung relasi belongsTo/hasMany dengan Buku)
+    Route::resource('kategori', KategoriController::class);
+
+    // Transaksi
+    Route::get('/transaksi/laporan', [TransaksiController::class, 'laporan'])->name('transaksi.laporan');
+    Route::get('/transaksi/laporan/pdf', [TransaksiController::class, 'laporanPdf'])->name('transaksi.laporan.pdf');
+    Route::post('/transaksi/{transaksi}/kembalikan', [TransaksiController::class, 'kembalikan'])->name('transaksi.kembalikan');
+    Route::resource('transaksi', TransaksiController::class)->except(['edit', 'update', 'destroy']);
+});

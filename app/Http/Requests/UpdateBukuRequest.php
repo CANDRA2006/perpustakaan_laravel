@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Kategori;
 use App\Rules\KodeBukuFormat;
+use Illuminate\Validation\Rule;
 
 class UpdateBukuRequest extends FormRequest
 {
@@ -28,7 +30,7 @@ class UpdateBukuRequest extends FormRequest
         return [
             'kode_buku' => ['required', 'string', 'max:20', 'unique:buku,kode_buku,' . $bukuId, new KodeBukuFormat()],
             'judul' => 'required|string|max:200',
-            'kategori' => 'required|in:Programming,Database,Web Design,Networking,Data Science',
+            'kategori' => ['required', 'string', 'max:50', Rule::in(Kategori::pluck('nama_kategori')->toArray())],
             'pengarang' => 'required|string|max:100',
             'penerbit' => 'required|string|max:100',
             'tahun_terbit' => 'required|integer|min:1900|max:' . date('Y'),
@@ -70,6 +72,7 @@ class UpdateBukuRequest extends FormRequest
             'kode_buku.unique' => 'Kode buku sudah digunakan.',
             'judul.required' => 'Judul buku wajib diisi.',
             'kategori.required' => 'Kategori wajib dipilih.',
+            'kategori.in' => 'Kategori tidak valid atau belum terdaftar. Tambahkan kategori baru di menu Kategori.',
             'harga.required' => 'Harga buku wajib diisi.',
             'harga.numeric' => 'Harga harus berupa angka.',
             'stok.integer' => 'Stok harus berupa angka bulat.',

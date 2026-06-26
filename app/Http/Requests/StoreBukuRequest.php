@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Kategori;
 use App\Rules\KodeBukuFormat;
+use Illuminate\Validation\Rule;
 
 class StoreBukuRequest extends FormRequest
 {
@@ -25,7 +27,7 @@ class StoreBukuRequest extends FormRequest
         return [
             'kode_buku' => ['required', 'string', 'max:20', 'unique:buku,kode_buku', new KodeBukuFormat()],
             'judul' => 'required|string|max:200',
-            'kategori' => 'required|in:Programming,Database,Web Design,Networking,Data Science',
+            'kategori' => ['required', 'string', 'max:50', Rule::in(Kategori::pluck('nama_kategori')->toArray())],
             'pengarang' => 'required|string|max:100',
             'penerbit' => 'required|string|max:100',
             'tahun_terbit' => 'required|integer|min:1900|max:' . date('Y'),
@@ -69,7 +71,7 @@ class StoreBukuRequest extends FormRequest
             'judul.required' => 'Judul buku wajib diisi.',
             'judul.max' => 'Judul buku maksimal 200 karakter.',
             'kategori.required' => 'Kategori wajib dipilih.',
-            'kategori.in' => 'Kategori tidak valid.',
+            'kategori.in' => 'Kategori tidak valid atau belum terdaftar. Tambahkan kategori baru di menu Kategori.',
             'pengarang.required' => 'Nama pengarang wajib diisi.',
             'penerbit.required' => 'Nama penerbit wajib diisi.',
             'tahun_terbit.required' => 'Tahun terbit wajib diisi.',

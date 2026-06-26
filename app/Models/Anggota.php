@@ -46,6 +46,14 @@ class Anggota extends Model
     ];
 
     /**
+     * Relasi hasMany ke Transaksi (riwayat peminjaman anggota ini).
+     */
+    public function transaksis()
+    {
+        return $this->hasMany(Transaksi::class, 'anggota_id');
+    }
+
+    /**
      * Accessor untuk menghitung umur.
      */
     public function getUmurAttribute(): int

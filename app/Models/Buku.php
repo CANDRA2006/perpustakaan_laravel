@@ -25,6 +25,7 @@ class Buku extends Model
         'kode_buku',
         'judul',
         'kategori',
+        'kategori_id',
         'pengarang',
         'penerbit',
         'tahun_terbit',
@@ -45,6 +46,23 @@ class Buku extends Model
         'harga' => 'decimal:2',
         'stok' => 'integer',
     ];
+
+    /**
+     * Relasi belongsTo ke model Kategori (real FK relation).
+     * Dinamai `kategoriModel` agar tidak bertabrakan dengan kolom string `kategori`.
+     */
+    public function kategoriModel()
+    {
+        return $this->belongsTo(Kategori::class, 'kategori_id');
+    }
+
+    /**
+     * Relasi hasMany ke Transaksi.
+     */
+    public function transaksis()
+    {
+        return $this->hasMany(Transaksi::class, 'buku_id');
+    }
 
     /**
      * Accessor untuk format harga.

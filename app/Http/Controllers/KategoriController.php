@@ -2,100 +2,106 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Buku;
+use App\Models\Kategori;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+
 class KategoriController extends Controller
 {
-    private array $kategori_list = [
-        [
-            'id' => 1,
-            'nama' => 'Programming',
-            'deskripsi' => 'Buku pemrograman dan coding',
-            'jumlah_buku' => 25,
-        ],
-        [
-            'id' => 2,
-            'nama' => 'Web Development',
-            'deskripsi' => 'Buku tentang pengembangan website',
-            'jumlah_buku' => 18,
-        ],
-        [
-            'id' => 3,
-            'nama' => 'Database',
-            'deskripsi' => 'Buku manajemen dan desain database',
-            'jumlah_buku' => 12,
-        ],
-        [
-            'id' => 4,
-            'nama' => 'Mobile Development',
-            'deskripsi' => 'Buku pengembangan aplikasi mobile',
-            'jumlah_buku' => 20,
-        ],
-        [
-            'id' => 5,
-            'nama' => 'UI/UX Design',
-            'deskripsi' => 'Buku desain antarmuka dan pengalaman pengguna',
-            'jumlah_buku' => 15,
-        ],
-    ];
-
-    public function index()
+    /**
+     * Tampilkan daftar kategori (dengan jumlah buku per kategori).
+     */
+    public function index(Request $request)
     {
-        $kategori_list = $this->kategori_list;
+        $query = Kategori::withCount('bukus');
 
-        return view('kategori.index', compact('kategori_list'));
+        if ($request->filled('keyword')) {
+            $keyword = $request->keyword;
+            $query->where(function ($q) use ($keyword) {
+                $q->where('nama_kategori', 'like', "%{$keyword}%")
+                    ->orWhere('deskripsi', 'like', "%{$keyword}%");
+            });
+        }
+
+        $kategoris = $query->orderBy('nama_kategori')->get();
+        $keyword = $request->keyword;
+        $totalBukuKeseluruhan = Buku::count();
+
+        return view('kategori.index', compact('kategoris', 'keyword', 'totalBukuKeseluruhan'));
     }
 
-    public function show($id)
+    public function create()
     {
-        $kategori = collect($this->kategori_list)->firstWhere('id', (int) $id);
-
-        abort_if(! $kategori, 404, 'Kategori tidak ditemukan');
-
-        $bukuByKategori = [
-            1 => [
-                ['id' => 1, 'judul' => 'Belajar PHP untuk Pemula', 'penulis' => 'Adi Nugroho', 'tahun' => 2023],
-                ['id' => 2, 'judul' => 'Clean Code', 'penulis' => 'Robert C. Martin', 'tahun' => 2022],
-                ['id' => 3, 'judul' => 'Design Pattern', 'penulis' => 'Gang of Four', 'tahun' => 2023],
-                ['id' => 4, 'judul' => 'Algoritma dan Struktur Data', 'penulis' => 'Budi Sutisna', 'tahun' => 2021],
-                ['id' => 5, 'judul' => 'Python untuk Data Science', 'penulis' => 'Widy Siswanto', 'tahun' => 2023],
-            ],
-            2 => [
-                ['id' => 1, 'judul' => 'HTML5 dan CSS3', 'penulis' => 'Marco Cesare', 'tahun' => 2023],
-                ['id' => 2, 'judul' => 'JavaScript Handbook', 'penulis' => 'Kyle Simpson', 'tahun' => 2022],
-                ['id' => 3, 'judul' => 'React.js untuk Pemula', 'penulis' => 'Ismail Yildirim', 'tahun' => 2023],
-                ['id' => 4, 'judul' => 'Vue.js Mastery', 'penulis' => 'Evan You', 'tahun' => 2023],
-            ],
-            3 => [
-                ['id' => 1, 'judul' => 'MySQL Handbook', 'penulis' => 'Paul DuBois', 'tahun' => 2023],
-                ['id' => 2, 'judul' => 'PostgreSQL Kung Fu', 'penulis' => 'Josh Berkus', 'tahun' => 2022],
-                ['id' => 3, 'judul' => 'MongoDB Guide', 'penulis' => 'Shannon Bradshaw', 'tahun' => 2023],
-            ],
-            4 => [
-                ['id' => 1, 'judul' => 'Android Development with Kotlin', 'penulis' => 'Emmett Etienne', 'tahun' => 2023],
-                ['id' => 2, 'judul' => 'Swift for iOS', 'penulis' => 'Ray Wenderlich', 'tahun' => 2023],
-                ['id' => 3, 'judul' => 'Flutter Development', 'penulis' => 'Marty Sipley', 'tahun' => 2023],
-            ],
-            5 => [
-                ['id' => 1, 'judul' => 'The Design of Everyday Things', 'penulis' => 'Don Norman', 'tahun' => 2023],
-                ['id' => 2, 'judul' => 'UX for Developers', 'penulis' => 'Lynda Shadrake', 'tahun' => 2022],
-                ['id' => 3, 'judul' => 'Wireframing and Prototyping', 'penulis' => 'Bill Scott', 'tahun' => 2023],
-            ],
-        ];
-
-        $buku_list = $bukuByKategori[$id] ?? [];
-
-        return view('kategori.show', compact('kategori', 'buku_list'));
+        return view('kategori.create');
     }
 
-    public function search($keyword)
+    public function store(Request $request)
     {
-        $keyword = trim((string) $keyword);
-        $keywordLower = strtolower($keyword);
+        $validated = $request->validate([
+            'nama_kategori' => ['required', 'string', 'max:50', 'unique:kategori,nama_kategori'],
+            'deskripsi' => ['nullable', 'string'],
+            'icon' => ['nullable', 'string', 'max:50'],
+            'warna' => ['nullable', 'string', 'max:20'],
+        ], [
+            'nama_kategori.required' => 'Nama kategori wajib diisi.',
+            'nama_kategori.unique' => 'Kategori dengan nama ini sudah ada.',
+        ]);
 
-        $hasil_pencarian = array_values(array_filter($this->kategori_list, function (array $kategori) use ($keywordLower) {
-            return str_contains(strtolower($kategori['nama']), $keywordLower)
-                || str_contains(strtolower($kategori['deskripsi']), $keywordLower);
-        }));
+        Kategori::create($validated);
 
-        return view('kategori.search', compact('hasil_pencarian', 'keyword'));
+        return redirect()->route('kategori.index')->with('success', 'Kategori berhasil ditambahkan!');
+    }
+
+    public function show(string $id)
+    {
+        $kategori = Kategori::withCount('bukus')->findOrFail($id);
+        $bukus = $kategori->bukus()->latest()->get();
+
+        return view('kategori.show', compact('kategori', 'bukus'));
+    }
+
+    public function edit(string $id)
+    {
+        $kategori = Kategori::findOrFail($id);
+
+        return view('kategori.edit', compact('kategori'));
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $kategori = Kategori::findOrFail($id);
+
+        $validated = $request->validate([
+            'nama_kategori' => ['required', 'string', 'max:50', Rule::unique('kategori', 'nama_kategori')->ignore($kategori->id)],
+            'deskripsi' => ['nullable', 'string'],
+            'icon' => ['nullable', 'string', 'max:50'],
+            'warna' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $namaLama = $kategori->nama_kategori;
+        $kategori->update($validated);
+
+        // Jaga konsistensi label string kategori pada tabel buku jika nama berubah.
+        if ($namaLama !== $kategori->nama_kategori) {
+            Buku::where('kategori_id', $kategori->id)->update(['kategori' => $kategori->nama_kategori]);
+        }
+
+        return redirect()->route('kategori.index')->with('success', 'Kategori berhasil diupdate!');
+    }
+
+    public function destroy(string $id)
+    {
+        $kategori = Kategori::findOrFail($id);
+
+        if ($kategori->bukus()->count() > 0) {
+            return redirect()->route('kategori.index')
+                ->with('error', "Kategori '{$kategori->nama_kategori}' tidak dapat dihapus karena masih memiliki " . $kategori->bukus()->count() . ' buku terkait.');
+        }
+
+        $nama = $kategori->nama_kategori;
+        $kategori->delete();
+
+        return redirect()->route('kategori.index')->with('success', "Kategori '{$nama}' berhasil dihapus!");
     }
 }

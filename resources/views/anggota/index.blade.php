@@ -1,7 +1,7 @@
 @extends('layouts.app')
- 
+
 @section('title', 'Daftar Anggota')
- 
+
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>
@@ -17,7 +17,7 @@
         </a>
     </div>
 </div>
- 
+
 {{-- Statistik --}}
 <div class="row mb-4">
     <div class="col-md-4">
@@ -61,46 +61,60 @@
     </div>
 </div>
 
-{{-- Form Search --}}
+{{-- Form Search & Advanced Filter --}}
 <div class="card mb-4">
     <div class="card-body">
         <form action="{{ route('anggota.search') }}" method="GET">
-            <div class="row">
+            <div class="row g-2 align-items-end">
                 <div class="col-md-3">
-                    <input type="text" name="keyword" class="form-control" 
+                    <label class="form-label small">Keyword</label>
+                    <input type="text" name="keyword" class="form-control"
                            value="{{ request('keyword') }}"
                            placeholder="Cari nama/email/telepon">
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label small">Jenis Kelamin</label>
                     <select name="jenis_kelamin" class="form-select">
-                        <option value="">Semua Jenis Kelamin</option>
+                        <option value="">Semua</option>
                         <option value="Laki-laki" {{ request('jenis_kelamin') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
                         <option value="Perempuan" {{ request('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
                     </select>
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label small">Status</label>
                     <select name="status" class="form-select">
-                        <option value="">Semua Status</option>
+                        <option value="">Semua</option>
                         <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
                         <option value="Nonaktif" {{ request('status') == 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                     </select>
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label small">Pekerjaan</label>
                     <select name="pekerjaan" class="form-select">
-                        <option value="">Semua Pekerjaan</option>
+                        <option value="">Semua</option>
                         <option value="Mahasiswa" {{ request('pekerjaan') == 'Mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
                         <option value="Pegawai" {{ request('pekerjaan') == 'Pegawai' ? 'selected' : '' }}>Pegawai</option>
                         <option value="Wiraswasta" {{ request('pekerjaan') == 'Wiraswasta' ? 'selected' : '' }}>Wiraswasta</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-search"></i> Cari
-                    </button>
-                    <a href="{{ route('anggota.index') }}" class="btn btn-secondary">
-                        <i class="bi bi-x"></i> Reset
-                    </a>
+                <div class="col-md-1">
+                    <label class="form-label small">Umur Min</label>
+                    <input type="number" name="umur_min" class="form-control" min="0" value="{{ request('umur_min') }}">
                 </div>
+                <div class="col-md-1">
+                    <label class="form-label small">Umur Max</label>
+                    <input type="number" name="umur_max" class="form-control" min="0" value="{{ request('umur_max') }}">
+                </div>
+                <div class="col-md-1 d-flex gap-1">
+                    <button type="submit" class="btn btn-primary w-100" title="Cari">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="{{ route('anggota.index') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-x"></i> Reset Filter
+                </a>
             </div>
         </form>
     </div>
@@ -162,12 +176,12 @@
                             </td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <a href="{{ route('anggota.show', $anggota->id) }}" 
+                                    <a href="{{ route('anggota.show', $anggota->id) }}"
                                        class="btn btn-sm btn-info text-white"
                                        title="Detail">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="{{ route('anggota.edit', $anggota->id) }}" 
+                                    <a href="{{ route('anggota.edit', $anggota->id) }}"
                                        class="btn btn-sm btn-warning"
                                        title="Edit">
                                         <i class="bi bi-pencil"></i>
