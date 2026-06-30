@@ -32,8 +32,7 @@ class TransaksiController extends Controller
         $bukus = Buku::tersedia()->orderBy('judul')->get();
         $anggotas = Anggota::aktif()->orderBy('nama')->get();
 
-        // Mendukung prefill buku terpilih, misal dari tombol "Pinjam Buku"
-        // di halaman detail buku: route('transaksi.create', ['buku_id' => $buku->id])
+        // Mendukung prefill buku terpilih
         $selectedBukuId = $request->integer('buku_id') ?: null;
 
         return view('transaksi.create', compact('bukus', 'anggotas', 'selectedBukuId'));
