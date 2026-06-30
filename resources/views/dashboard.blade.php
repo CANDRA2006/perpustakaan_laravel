@@ -133,7 +133,7 @@
     </div>
 </div>
 
-{{-- ===================== CHARTS ===================== --}}
+{{-- CHARTS --}}
 <div class="row g-4 mb-4">
     <div class="col-lg-8">
         <div class="card shadow-sm border-0 h-100">
