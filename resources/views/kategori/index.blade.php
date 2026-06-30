@@ -66,9 +66,11 @@
 
 <div class="row mt-2">
     <div class="col-12">
-        <div class="card bg-light">
+        <div class="card text-bg-body border">
             <div class="card-body">
-                <h6><i class="bi bi-bar-chart"></i> Statistik</h6>
+                <h6>
+                    <i class="bi bi-bar-chart"></i> Statistik
+                </h6>
                 <p class="mb-0">
                     <strong>Total Kategori:</strong> {{ $kategoris->count() }} |
                     <strong>Total Buku Keseluruhan:</strong> {{ $totalBukuKeseluruhan }}

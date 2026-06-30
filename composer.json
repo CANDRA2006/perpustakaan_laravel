@@ -13,7 +13,9 @@
         "maatwebsite/excel": "^3.1"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^4.3",
         "fakerphp/faker": "^1.23",
+        "laravel/dusk": "^8.6",
         "laravel/pail": "^1.2.5",
         "laravel/pao": "^1.0.6",
         "laravel/pint": "^1.27",

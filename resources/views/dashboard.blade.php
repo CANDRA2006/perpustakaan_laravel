@@ -7,7 +7,7 @@
     <div class="p-4 p-md-5 rounded-4 text-white shadow-sm" style="background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 45%, #0a58ca 100%);">
         <div class="row align-items-center g-4">
             <div class="col-lg-8">
-                <span class="badge bg-light text-primary mb-3">Ringkasan Perpustakaan</span>
+                <span class="bi bi-book-fill text-primary">Ringkasan Perpustakaan</span>
                 <h1 class="display-6 fw-bold mb-3">Dashboard Sistem Perpustakaan</h1>
                 <p class="lead mb-0 opacity-75">
                     Pantau kondisi koleksi buku, status anggota, dan data terbaru dalam satu tampilan.
@@ -108,7 +108,7 @@
     <div class="col-md-8">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white border-0 py-3">
-                <h6 class="mb-0"><i class="bi bi-people-fill text-danger me-2"></i>Anggota dengan Buku Terlambat</h6>
+                <h6 class="mb-0"><i class="bi bi-book-fill text-primary"></i>Anggota dengan Buku Terlambat</h6>
             </div>
             <div class="table-responsive">
                 <table class="table table-sm align-middle mb-0">
